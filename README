@@ -1,0 +1,63 @@
+ngle - NVIDIA Toggle
+--------------------
+
+Dumb tool for disabling and enabling NVIDIA discrete card on hybrid Intel/NVIDIA laptops.
+
+
+
+Why?
+----
+
+I was stupid enough to purchase an NVIDIA Optimus laptop where all outputs are connected to discrete NVIDIA card.
+This means if I cannot power off NVIDIA card if I want to use external monitor.
+Leaving the discrete card always powered on means sacrificing battery life.
+
+There are already existing solutions like optimus-manager, bumblebee, nvidia-switch,
+but those are too complex and error prone and milage may vary depending on the laptop specs and distro.
+I'm not using a display manager and with these solutions I always end up adding stuff to .xinitrc or .profile.
+
+
+
+How is ngle different?
+----------------------
+
+It is dead simple and works for my use-case:
+
+- I don't mind rebooting in order to turn the NVIDIA card on/off
+
+
+
+How does it work?
+---------------------
+
+- When NVIDIA card is disabled/powered down:
+    - It will copy a specific Xorg config to /etc/X11/xorg.conf (stolen from https://github.com/nvidiaswitch/nvidia-switch/)
+    - It will clear NVIDIA module(s) blacklisting
+    - It will remove udev rules for fully powering down the card
+
+- When NVIDIA card is enabled:
+    - It will remove /etc/X11/xorg.conf
+    - It will blacklist NVIDIA module(s)
+    - It will add udev rule for powering down the card
+
+
+
+Installation
+------------
+
+$ ./install.sh
+
+
+
+Usage
+-----
+
+$ ngle && reboot
+
+
+
+References
+----------
+
+- https://wiki.archlinux.org/title/Hybrid_graphics#Fully_power_down_discrete_GPU
+- https://github.com/nvidiaswitch/nvidia-switch/

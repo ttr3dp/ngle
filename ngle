@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# ngle (NVIDIA toggle)
+# Simple script to turn NVIDIA card on and off in hybrid mode.
+# Requires a reboot in for changes to be applied.
+
+NGLE_ROOT="/opt/ngle"
+NGLE_STATUS_FILE="$NGLE_ROOT/NVIDIA_ON"
+
+NGLE_UDEV_RULES_SRC="$NGLE_ROOT/00-remove-nvidia.rules"
+NGLE_MODPROBE_BLACKLIST_SRC="$NGLE_ROOT/nvidia-blacklist.conf"
+NGLE_X11_NVIDIA_CONF_SRC="$NGLE_ROOT/nvidia_xorg.conf"
+
+NGLE_UDEV_RULES_DEST="/etc/udev/rules.d/00-remove-nvidia.rules"
+NGLE_MODPROBE_BLACKLIST_DEST="/etc/modprobe.d/nvidia-blacklist.conf"
+NGLE_X11_NVIDIA_CONF_DEST="/etc/X11/xorg.conf"
+
+turn_on() {
+    sudo rm "$NGLE_UDEV_RULES_DEST" \
+        "$NGLE_MODPROBE_BLACKLIST_DEST" && \
+        cat "$NGLE_X11_NVIDIA_CONF_SRC" | sudo tee "$NGLE_X11_NVIDIA_CONF_DEST" && \
+        sudo touch "$NGLE_STATUS_FILE"
+}
+
+turn_off() {
+    sudo cp "$NGLE_UDEV_RULES_SRC" "$NGLE_UDEV_RULES_DEST" && \
+        sudo cp "$NGLE_MODPROBE_BLACKLIST_SRC" "$NGLE_MODPROBE_BLACKLIST_DEST" && \
+        sudo rm "$NGLE_STATUS_FILE" "$NGLE_X11_NVIDIA_CONF_DEST"
+}
+
+if [ -f "$NGLE_STATUS_FILE" ]; then
+    printf 'NVIDIA is on. Setting everything up for card power off\n'
+    turn_off
+else
+    printf 'NVIDIA is off. Setting everything up for card power on\n'
+    turn_on
+fi
